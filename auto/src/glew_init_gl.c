@@ -44,6 +44,7 @@ GLenum glewContextInit (GLEW_CONTEXT_ARG_DEF_LIST)
   }
   else
   {
+#ifndef GLEW_ES_ONLY
     CONST_CAST(GLEW_VERSION_4_2)   = ( major > 4 )                 || ( major == 4 && minor >= 2 ) ? GL_TRUE : GL_FALSE;
     CONST_CAST(GLEW_VERSION_4_1)   = GLEW_VERSION_4_2   == GL_TRUE || ( major == 4 && minor >= 1 ) ? GL_TRUE : GL_FALSE;
     CONST_CAST(GLEW_VERSION_4_0)   = GLEW_VERSION_4_1   == GL_TRUE || ( major == 4               ) ? GL_TRUE : GL_FALSE;
@@ -59,6 +60,13 @@ GLenum glewContextInit (GLEW_CONTEXT_ARG_DEF_LIST)
     CONST_CAST(GLEW_VERSION_1_2_1) = GLEW_VERSION_1_3   == GL_TRUE                                 ? GL_TRUE : GL_FALSE; 
     CONST_CAST(GLEW_VERSION_1_2)   = GLEW_VERSION_1_2_1 == GL_TRUE || ( major == 1 && minor >= 2 ) ? GL_TRUE : GL_FALSE;
     CONST_CAST(GLEW_VERSION_1_1)   = GLEW_VERSION_1_2   == GL_TRUE || ( major == 1 && minor >= 1 ) ? GL_TRUE : GL_FALSE;
+#else
+    CONST_CAST(GLEW_ES_VERSION_2_0) = ( major > 2 )    || ( major == 2 && minor >= 0 ) ? GL_TRUE :GL_FALSE;
+    CONST_CAST(GLEW_ES_VERSION_1_1) = GLEW_ES_VERSION_2_0 == GL_TRUE || ( major == 1 && minor >= 1 ) ? GL_TRUE :GL_FALSE; 
+    CONST_CAST(GLEW_ES_VERSION_1_0) = GLEW_ES_VERSION_1_1 == GL_TRUE || ( major == 1 && minor >= 0 ) ? GL_TRUE :GL_FALSE; 
+		                     
+#endif /* GLEW_ES_ONLY */
+
   }
 
   /* query opengl extensions string */
