@@ -1,0 +1,15 @@
+GL_ES_VERSION_CM_1_1
+http://www.khronos.org/registry/gles/specs/1.1/es_full_spec_1.1.12.pdf
+
+	GL_VERSION_ES_CM_1_0  0x1
+	GL_VERSION_ES_CM_1_1  0x1
+	void  glClipPlanef (GLenum, const GLfloat *)
+	void  glGetClipPlanef (GLenum , GLfloat* )
+	void  glGetFloatv (GLenum , GLfloat *)
+	void  glGetLightfv (GLenum , GLenum , GLfloat *)
+	void  glGetMaterialfv (GLenum, GLenum, GLfloat *)
+	void  glGetTexEnvfv (GLenum env, GLenum, GLfloat *)
+	void  glGetTexParameterfv (GLenum, GLenum, GLfloat *)
+	void  glPointParameterf (GLenum , GLfloat )
+	void  glPointParameterfv (GLenum, const GLfloat *)
+	void  glTexParameterfv (GLenum, GLenum , const GLfloat *)

@@ -1,9 +1,7 @@
-GL_ES_VERSION_1_1
-http://www.khronos.org/registry/gles/specs/1.0/opengles_spec_1_0.pdf
+GL_ES_VERSION_CL_1_1
+http://www.khronos.org/registry/gles/specs/1.1/es_full_spec_1.1.12.pdf
 
-	GL_VERSION_ES_CM_1_0  0x1
 	GL_VERSION_ES_CL_1_0  0x1
-	GL_VERSION_ES_CM_1_1  0x1
 	GL_VERSION_ES_CL_1_1  0x1
 	GL_CLIP_PLANE0 0x3000
 	GL_CLIP_PLANE1 0x3001
@@ -115,16 +113,6 @@ http://www.khronos.org/registry/gles/specs/1.0/opengles_spec_1_0.pdf
 	GL_SRC2_ALPHA 0x858A
 	GL_DOT3_RGB 0x86AE
 	GL_DOT3_RGBA 0x86AF
-	void  glClipPlanef (GLenum, const GLfloat *)
-	void  glGetClipPlanef (GLenum , GLfloat* )
-	void  glGetFloatv (GLenum , GLfloat *)
-	void  glGetLightfv (GLenum , GLenum , GLfloat *)
-	void  glGetMaterialfv (GLenum, GLenum, GLfloat *)
-	void  glGetTexEnvfv (GLenum env, GLenum, GLfloat *)
-	void  glGetTexParameterfv (GLenum, GLenum, GLfloat *)
-	void  glPointParameterf (GLenum , GLfloat )
-	void  glPointParameterfv (GLenum, const GLfloat *)
-	void  glTexParameterfv (GLenum, GLenum , const GLfloat *)
 	void  glBindBuffer (GLenum , GLuint )
 	void  glBufferData (GLenum , GLsizeiptr, const GLvoid *, GLenum )
 	void  glBufferSubData (GLenum, GLintptr, GLsizeiptr, const GLvoid *)
@@ -156,6 +144,3 @@ http://www.khronos.org/registry/gles/specs/1.0/opengles_spec_1_0.pdf
 	typedef khronos_intptr_t GLintptr
 	typedef khronos_ssize_t  GLsizeiptr
 	typedef char             GLchar
-
-
-

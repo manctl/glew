@@ -265,7 +265,6 @@ $(S.DEST)/glew.c: $(EXT)/.dummy $(EXT_EGL)/.dummy $(EXT_ES)/.dummy
 	$(BIN)/make_def_var.pl GL $(GL_CORE_SPEC) >> $@
 	$(BIN)/make_def_var.pl GL $(GL_EXT_SPEC) >> $@
 	echo -e "\n#else \n" >> $@
-	echo -e "\nGLboolean __GLEW_ES_VERSION_1_0 = GL_FALSE;" >> $@
 	$(BIN)/make_def_var.pl GL $(GLES_CORE_SPEC) >> $@
 	$(BIN)/make_def_var.pl GL $(GLES_EXT_SPEC) >> $@
 	echo -e "\n#endif /* GLEW_ES_ONLY */ \n" >> $@

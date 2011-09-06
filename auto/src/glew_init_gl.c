@@ -61,9 +61,10 @@ GLenum glewContextInit (GLEW_CONTEXT_ARG_DEF_LIST)
     CONST_CAST(GLEW_VERSION_1_2)   = GLEW_VERSION_1_2_1 == GL_TRUE || ( major == 1 && minor >= 2 ) ? GL_TRUE : GL_FALSE;
     CONST_CAST(GLEW_VERSION_1_1)   = GLEW_VERSION_1_2   == GL_TRUE || ( major == 1 && minor >= 1 ) ? GL_TRUE : GL_FALSE;
 #else
-    CONST_CAST(GLEW_ES_VERSION_2_0) = ( major > 2 )    || ( major == 2 && minor >= 0 ) ? GL_TRUE :GL_FALSE;
-    CONST_CAST(GLEW_ES_VERSION_1_1) = GLEW_ES_VERSION_2_0 == GL_TRUE || ( major == 1 && minor >= 1 ) ? GL_TRUE :GL_FALSE; 
-    CONST_CAST(GLEW_ES_VERSION_1_0) = GLEW_ES_VERSION_1_1 == GL_TRUE || ( major == 1 && minor >= 0 ) ? GL_TRUE :GL_FALSE; 
+    CONST_CAST(GLEW_ES_VERSION_2_0)     = ( major > 2 )                         || ( major == 2 && minor >= 0 ) ? GL_TRUE :GL_FALSE;
+    CONST_CAST(GLEW_ES_VERSION_CL_1_1)  = GLEW_ES_VERSION_2_0       == GL_TRUE  || ( major == 1 && minor >= 1 ) ? GL_TRUE :GL_FALSE;
+    CONST_CAST(GLEW_ES_VERSION_CM_1_1)  = GLEW_ES_VERSION_2_0       == GL_TRUE  || ( major == 1 && minor >= 1 ) ? GL_TRUE :GL_FALSE;
+    CONST_CAST(GLEW_ES_VERSION_1_0)     = GLEW_ES_VERSION_CL_1_1    == GL_TRUE  || ( major == 1 && minor >= 0 ) ? GL_TRUE :GL_FALSE;
 		                     
 #endif /* GLEW_ES_ONLY */
 
