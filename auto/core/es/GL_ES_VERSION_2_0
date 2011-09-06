@@ -1,0 +1,5 @@
+GL_ES_VERSION_2_0
+http://www.khronos.org/registry/gles/specs/2.0/es_full_spec_2.0.25.pdf
+
+	GL_RGB565 0x8D62
+	GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS 0x8CD9

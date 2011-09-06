@@ -1,0 +1,15 @@
+GL_ES_VERSION_CL_1_1
+http://www.khronos.org/registry/gles/specs/1.1/es_full_spec_1.1.12.pdf
+
+	GL_VERSION_ES_CL_1_0  0x1
+	GL_VERSION_ES_CL_1_1  0x1
+	void  glClipPlanex (GLenum ,const GLfixed *)
+	void  glGetClipPlanex (GLenum ,GLfixed*)
+	void  glGetFixedv (GLenum, GLfixed *)
+	void  glGetLightxv (GLenum, GLenum, GLfixed *)
+	void  glGetMaterialxv (GLenum, GLenum, GLfixed *)
+	void  glGetTexEnvxv (GLenum, GLenum, GLfixed *)
+	void  glGetTexParameterxv (GLenum, GLenum, GLfixed *)
+	void  glPointParameterx (GLenum, GLfixed)
+	void  glPointParameterxv (GLenum, const GLfixed *)
+	void  glTexParameterxv (GLenum, GLenum, const GLfixed *)
