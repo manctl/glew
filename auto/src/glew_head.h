@@ -190,10 +190,7 @@ typedef _W64 int ptrdiff_t;
 extern "C" {
 #endif
 
-/* ----------------------------- GL_VERSION_1_1 ---------------------------- */
-
-#ifndef GL_VERSION_1_1
-#define GL_VERSION_1_1 1
+/* ----------------------------- GL_VERSION_1_1 which are not present in ES 1.1 and higher version---------------------------- */
 
 typedef unsigned int GLenum;
 typedef unsigned int GLbitfield;
@@ -808,7 +805,6 @@ GLAPI void GLAPIENTRY glColor4i (GLint red, GLint green, GLint blue, GLint alpha
 GLAPI void GLAPIENTRY glColor4iv (const GLint *v);
 GLAPI void GLAPIENTRY glColor4s (GLshort red, GLshort green, GLshort blue, GLshort alpha);
 GLAPI void GLAPIENTRY glColor4sv (const GLshort *v);
-GLAPI void GLAPIENTRY glColor4ub (GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha);
 GLAPI void GLAPIENTRY glColor4ubv (const GLubyte *v);
 GLAPI void GLAPIENTRY glColor4ui (GLuint red, GLuint green, GLuint blue, GLuint alpha);
 GLAPI void GLAPIENTRY glColor4uiv (const GLuint *v);
@@ -864,35 +860,26 @@ GLAPI void GLAPIENTRY glFrontFace (GLenum mode);
 GLAPI void GLAPIENTRY glFrustum (GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar);
 GLAPI GLuint GLAPIENTRY glGenLists (GLsizei range);
 GLAPI void GLAPIENTRY glGenTextures (GLsizei n, GLuint *textures);
-GLAPI void GLAPIENTRY glGetBooleanv (GLenum pname, GLboolean *params);
 GLAPI void GLAPIENTRY glGetClipPlane (GLenum plane, GLdouble *equation);
 GLAPI void GLAPIENTRY glGetDoublev (GLenum pname, GLdouble *params);
 GLAPI GLenum GLAPIENTRY glGetError (void);
-GLAPI void GLAPIENTRY glGetFloatv (GLenum pname, GLfloat *params);
 GLAPI void GLAPIENTRY glGetIntegerv (GLenum pname, GLint *params);
-GLAPI void GLAPIENTRY glGetLightfv (GLenum light, GLenum pname, GLfloat *params);
 GLAPI void GLAPIENTRY glGetLightiv (GLenum light, GLenum pname, GLint *params);
 GLAPI void GLAPIENTRY glGetMapdv (GLenum target, GLenum query, GLdouble *v);
 GLAPI void GLAPIENTRY glGetMapfv (GLenum target, GLenum query, GLfloat *v);
 GLAPI void GLAPIENTRY glGetMapiv (GLenum target, GLenum query, GLint *v);
-GLAPI void GLAPIENTRY glGetMaterialfv (GLenum face, GLenum pname, GLfloat *params);
 GLAPI void GLAPIENTRY glGetMaterialiv (GLenum face, GLenum pname, GLint *params);
 GLAPI void GLAPIENTRY glGetPixelMapfv (GLenum map, GLfloat *values);
 GLAPI void GLAPIENTRY glGetPixelMapuiv (GLenum map, GLuint *values);
 GLAPI void GLAPIENTRY glGetPixelMapusv (GLenum map, GLushort *values);
-GLAPI void GLAPIENTRY glGetPointerv (GLenum pname, GLvoid* *params);
 GLAPI void GLAPIENTRY glGetPolygonStipple (GLubyte *mask);
 GLAPI const GLubyte * GLAPIENTRY glGetString (GLenum name);
-GLAPI void GLAPIENTRY glGetTexEnvfv (GLenum target, GLenum pname, GLfloat *params);
-GLAPI void GLAPIENTRY glGetTexEnviv (GLenum target, GLenum pname, GLint *params);
 GLAPI void GLAPIENTRY glGetTexGendv (GLenum coord, GLenum pname, GLdouble *params);
 GLAPI void GLAPIENTRY glGetTexGenfv (GLenum coord, GLenum pname, GLfloat *params);
 GLAPI void GLAPIENTRY glGetTexGeniv (GLenum coord, GLenum pname, GLint *params);
 GLAPI void GLAPIENTRY glGetTexImage (GLenum target, GLint level, GLenum format, GLenum type, GLvoid *pixels);
 GLAPI void GLAPIENTRY glGetTexLevelParameterfv (GLenum target, GLint level, GLenum pname, GLfloat *params);
 GLAPI void GLAPIENTRY glGetTexLevelParameteriv (GLenum target, GLint level, GLenum pname, GLint *params);
-GLAPI void GLAPIENTRY glGetTexParameterfv (GLenum target, GLenum pname, GLfloat *params);
-GLAPI void GLAPIENTRY glGetTexParameteriv (GLenum target, GLenum pname, GLint *params);
 GLAPI void GLAPIENTRY glHint (GLenum target, GLenum mode);
 GLAPI void GLAPIENTRY glIndexMask (GLuint mask);
 GLAPI void GLAPIENTRY glIndexPointer (GLenum type, GLsizei stride, const GLvoid *pointer);
@@ -908,9 +895,7 @@ GLAPI void GLAPIENTRY glIndexub (GLubyte c);
 GLAPI void GLAPIENTRY glIndexubv (const GLubyte *c);
 GLAPI void GLAPIENTRY glInitNames (void);
 GLAPI void GLAPIENTRY glInterleavedArrays (GLenum format, GLsizei stride, const GLvoid *pointer);
-GLAPI GLboolean GLAPIENTRY glIsEnabled (GLenum cap);
 GLAPI GLboolean GLAPIENTRY glIsList (GLuint list);
-GLAPI GLboolean GLAPIENTRY glIsTexture (GLuint texture);
 GLAPI void GLAPIENTRY glLightModelf (GLenum pname, GLfloat param);
 GLAPI void GLAPIENTRY glLightModelfv (GLenum pname, const GLfloat *params);
 GLAPI void GLAPIENTRY glLightModeli (GLenum pname, GLint param);
@@ -1057,8 +1042,6 @@ GLAPI void GLAPIENTRY glTexCoord4sv (const GLshort *v);
 GLAPI void GLAPIENTRY glTexCoordPointer (GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
 GLAPI void GLAPIENTRY glTexEnvf (GLenum target, GLenum pname, GLfloat param);
 GLAPI void GLAPIENTRY glTexEnvfv (GLenum target, GLenum pname, const GLfloat *params);
-GLAPI void GLAPIENTRY glTexEnvi (GLenum target, GLenum pname, GLint param);
-GLAPI void GLAPIENTRY glTexEnviv (GLenum target, GLenum pname, const GLint *params);
 GLAPI void GLAPIENTRY glTexGend (GLenum coord, GLenum pname, GLdouble param);
 GLAPI void GLAPIENTRY glTexGendv (GLenum coord, GLenum pname, const GLdouble *params);
 GLAPI void GLAPIENTRY glTexGenf (GLenum coord, GLenum pname, GLfloat param);
@@ -1068,9 +1051,6 @@ GLAPI void GLAPIENTRY glTexGeniv (GLenum coord, GLenum pname, const GLint *param
 GLAPI void GLAPIENTRY glTexImage1D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
 GLAPI void GLAPIENTRY glTexImage2D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
 GLAPI void GLAPIENTRY glTexParameterf (GLenum target, GLenum pname, GLfloat param);
-GLAPI void GLAPIENTRY glTexParameterfv (GLenum target, GLenum pname, const GLfloat *params);
-GLAPI void GLAPIENTRY glTexParameteri (GLenum target, GLenum pname, GLint param);
-GLAPI void GLAPIENTRY glTexParameteriv (GLenum target, GLenum pname, const GLint *params);
 GLAPI void GLAPIENTRY glTexSubImage1D (GLenum target, GLint level, GLint xoffset, GLsizei width, GLenum format, GLenum type, const GLvoid *pixels);
 GLAPI void GLAPIENTRY glTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels);
 GLAPI void GLAPIENTRY glTranslated (GLdouble x, GLdouble y, GLdouble z);
@@ -1102,9 +1082,7 @@ GLAPI void GLAPIENTRY glVertex4sv (const GLshort *v);
 GLAPI void GLAPIENTRY glVertexPointer (GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
 GLAPI void GLAPIENTRY glViewport (GLint x, GLint y, GLsizei width, GLsizei height);
 
-#define GLEW_VERSION_1_1 GLEW_GET_VAR(__GLEW_VERSION_1_1)
 
-#endif /* GL_VERSION_1_1 */
 
 /* ---------------------------------- GLU ---------------------------------- */
 

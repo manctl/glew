@@ -1,0 +1,21 @@
+GL_VERSION_1_1
+http://www.opengl.org/documentation/specs/version1.1/GLspec1.1.ps
+
+	 void glColor4ub (GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha)
+	 void glGetBooleanv (GLenum pname, GLboolean *params)
+	 void glGetFloatv (GLenum pname, GLfloat *params)
+	 void glGetLightfv (GLenum light, GLenum pname, GLfloat *params)
+	 void glGetMaterialfv (GLenum face, GLenum pname, GLfloat *params)
+	 void glGetPointerv (GLenum pname, GLvoid* *params)
+	 void glGetTexEnvfv (GLenum target, GLenum pname, GLfloat *params)
+	 void glGetTexEnviv (GLenum target, GLenum pname, GLint *params)
+	 void glGetTexParameterfv (GLenum target, GLenum pname, GLfloat *params)
+	 void glGetTexParameteriv (GLenum target, GLenum pname, GLint *params)
+	 GLboolean glIsEnabled (GLenum cap)
+	 GLboolean glIsTexture (GLuint texture)
+	 void glTexEnvi (GLenum target, GLenum pname, GLint param)
+	 void glTexEnviv (GLenum target, GLenum pname, const GLint *params)
+	 void glTexParameterfv (GLenum target, GLenum pname, const GLfloat *params)
+	 void glTexParameteri (GLenum target, GLenum pname, GLint param)
+	 void glTexParameteriv (GLenum target, GLenum pname, const GLint *params)
+
