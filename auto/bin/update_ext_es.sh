@@ -46,6 +46,12 @@ EOT
     sed 's/eglImageOES/GLeglImageOES/g' $1/GL_OES_EGL_image_external > tmp
     mv tmp $1/GL_OES_EGL_image_external
 
+# remove duplicates from GL_NV_read_buffer and GL_NV_read_buffer_front
+	head -2 $1/GL_NV_read_buffer_front > tmp
+    grep -v -x -F -f $1/GL_NV_read_buffer $1/GL_NV_read_buffer_front > tmp2
+	tail -n +2 tmp2  >> tmp
+    mv tmp $1/GL_NV_read_buffer_front
+
 # modify GL_SUN_multi_draw_arrays to have SUN version of functions
     sed 's/EXT /SUN /g' $1/GL_SUN_multi_draw_arrays > tmp
     mv tmp $1/GL_SUN_multi_draw_arrays

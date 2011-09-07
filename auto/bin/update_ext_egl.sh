@@ -62,7 +62,10 @@ EOT
 	typedef khronos_utime_nanoseconds_t EGLTimeNV
 EOT
 
-
+#fix EGL_NV_system_time
+  cat >> $1/EGL_NV_system_time <<EOT
+	typedef khronos_utime_nanoseconds_t EGLuint64NV
+EOT
 
 # clean up
     rm -f $1/*.bak
