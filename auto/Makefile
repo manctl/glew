@@ -17,6 +17,7 @@ REGISTRY_SPECIFIC_PATH = /registry/
 BIN = bin
 SRC = src
 CORE = core
+CORE_ES_WITH_OPENGL = core/es
 CORE_ES = core_es
 CORE_EGL = core_egl
 COMMON = common
@@ -39,6 +40,7 @@ GL_CORE_SPEC := $(CORE)/GL_VERSION*
 GLX_CORE_SPEC := $(CORE)/GLX_VERSION*
 GLES_CORE_SPEC := $(CORE_ES)/GL_ES_VERSION*
 EGL_CORE_SPEC := $(CORE_EGL)/EGL_VERSION*
+GLES_CORE_WITH_OPENGL_SPEC := $(CORE_ES_WITH_OPENGL)/GL_ES_VERSION*
 ifeq (custom,$(MAKECMDGOALS))
 #GL_CORE_SPEC := $(shell grep GL_VERSION custom.txt | perl -e 's/\(.*\)/$(CORE)\/\1/g;')
 GL_EXT_SPEC := $(shell grep "^[ \t]*GL_" custom.txt | grep -v GL_VERSION | perl -e 's/\(.*\)/$(EXT)\/\1/g;')
@@ -154,26 +156,34 @@ $(EXT_EGL)/.dummy :$(REGISTRY_EGL)/.dummy
 	$(BIN)/update_ext_egl.sh $(EXT_EGL) $(REGISTRY_EGL) $(BLACKLIST)
 	touch $@
 	
-$(I.DEST)/glew.h: $(EXT)/.dummy
+$(I.DEST)/glew.h: $(EXT)/.dummy $(EXT_ES)/.dummy
 	@echo "--------------------------------------------------------------------"
 	@echo "Creating glew.h"
 	@echo "--------------------------------------------------------------------"
 	test -d $(I.DEST) || mkdir -p $(I.DEST)
+	#---move the common extensions to common folder---
+	$(BIN)/move_common_ext.sh $(EXT) $(EXT_ES) $(COMMON)
 	cp -f $(SRC)/glew_license.h $@
 	cat $(SRC)/mesa_license.h >> $@
 	cat $(SRC)/khronos_license.h >> $@
 	cat $(SRC)/glew_head.h >> $@
 	$(BIN)/make_header.pl GLAPIENTRY GL $(GL_CORE_SPEC) >> $@
 	$(BIN)/make_header.pl GLAPIENTRY GL $(GL_EXT_SPEC) >> $@
+	$(BIN)/make_header.pl GLAPIENTRY GL $(GLES_CORE_WITH_OPENGL_SPEC) >> $@
+	$(BIN)/make_header.pl GLAPIENTRY GL $(GLES_EXT_SPEC) >> $@
 	echo -e "/* ------------------------------------------------------------------------- */\n\n#if defined(GLEW_MX) && defined(_WIN32)\n#define GLEW_FUN_EXPORT\n#else\n#define GLEW_FUN_EXPORT GLEWAPI\n#endif /* GLEW_MX */\n" >> $@
 	echo -e "#if defined(GLEW_MX)\n#define GLEW_VAR_EXPORT\n#else\n#define GLEW_VAR_EXPORT GLEWAPI\n#endif /* GLEW_MX */\n" >> $@
 	echo -e "#if defined(GLEW_MX) && defined(_WIN32)\nstruct GLEWContextStruct\n{\n#endif /* GLEW_MX */" >> $@
 	$(BIN)/make_struct_fun.pl GLEW_FUN_EXPORT $(GL_CORE_SPEC) $(GL_EXT_SPEC) >> $@
+	$(BIN)/make_struct_fun.pl GLEW_FUN_EXPORT $(GLES_CORE_WITH_OPENGL_SPEC) $(GLES_EXT_SPEC) >> $@
 	echo -e "\n#if defined(GLEW_MX) && !defined(_WIN32)\nstruct GLEWContextStruct\n{\n#endif /* GLEW_MX */\n" >> $@
 	$(BIN)/make_struct_var.pl GLEW_VAR_EXPORT $(GL_CORE_SPEC) $(GL_EXT_SPEC) >> $@
+	$(BIN)/make_struct_var.pl GLEW_VAR_EXPORT $(GLES_CORE_WITH_OPENGL_SPEC) $(GLES_EXT_SPEC) >> $@
 	echo -e "\n#ifdef GLEW_MX\n}; /* GLEWContextStruct */\n#endif /* GLEW_MX */\n" >> $@
 	rm -f $@.bak
 	cat $(SRC)/glew_tail.h >> $@
+	#---remove the common folder and copy back the files---
+	$(BIN)/move_back_common_ext.sh $(EXT_ES) $(COMMON)
 
 $(I.DEST)/glesew.h: $(EXT_ES)/.dummy
 	@echo "--------------------------------------------------------------------"
