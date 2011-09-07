@@ -52,6 +52,7 @@ GL_EXT_SPEC := $(EXT)/GL_*
 WGL_EXT_SPEC := $(EXT)/WGL_*
 GLX_EXT_SPEC := $(EXT)/GLX_*
 GLES_EXT_SPEC := $(EXT_ES)/GL_*
+GLES_COMMON_EXT_SPEC := $(COMMON)/GL_*
 EGL_EXT_SPEC := $(EXT_EGL)/EGL_*
 endif
 
@@ -258,29 +259,34 @@ $(S.DEST)/glew.c: $(EXT)/.dummy $(EXT_EGL)/.dummy $(EXT_ES)/.dummy
 	@echo "--------------------------------------------------------------------"
 	@echo "Creating glew.c"
 	@echo "--------------------------------------------------------------------"
-
 	cp -f $(SRC)/glew_license.h $@
 	cat $(SRC)/glew_head.c >> $@
+	#---move the common extensions to common folder---
+	$(BIN)/move_common_ext.sh $(EXT) $(EXT_ES) $(COMMON)
 	echo -e "\n#if !defined(_WIN32) || !defined(GLEW_MX)" >> $@
 	echo -e "\n#ifndef GLEW_ES_ONLY \n" >> $@
 	$(BIN)/make_def_fun.pl GL $(GL_CORE_SPEC) >> $@
 	$(BIN)/make_def_fun.pl GL $(GL_EXT_SPEC) >> $@
+	$(BIN)/make_def_fun.pl GL $(GLES_CORE_WITH_OPENGL_SPEC) >> $@
+	$(BIN)/make_def_fun.pl GL $(GLES_EXT_SPEC) >> $@
 	echo -e "\n#else   \n" >> $@
 	$(BIN)/make_def_fun.pl GL $(GLES_CORE_SPEC) >> $@
 	$(BIN)/make_def_fun.pl GL $(GLES_EXT_SPEC) >> $@
+	$(BIN)/make_def_fun.pl GL $(GLES_COMMON_EXT_SPEC) >> $@
 	echo -e "\n#endif /* GLEW_ES_ONLY */  \n" >> $@	
 	echo -e "\n#endif /* !WIN32 || !GLEW_MX */" >> $@
 	echo -e "\n#if !defined(GLEW_MX)" >> $@;
 	echo -e "\n#ifndef GLEW_ES_ONLY \n" >> $@
 	$(BIN)/make_def_var.pl GL $(GL_CORE_SPEC) >> $@
 	$(BIN)/make_def_var.pl GL $(GL_EXT_SPEC) >> $@
+	$(BIN)/make_def_var.pl GL $(GLES_CORE_WITH_OPENGL_SPEC) >> $@
+	$(BIN)/make_def_var.pl GL $(GLES_EXT_SPEC) >> $@
 	echo -e "\n#else \n" >> $@
 	$(BIN)/make_def_var.pl GL $(GLES_CORE_SPEC) >> $@
 	$(BIN)/make_def_var.pl GL $(GLES_EXT_SPEC) >> $@
+	$(BIN)/make_def_var.pl GL $(GLES_COMMON_EXT_SPEC) >> $@
 	echo -e "\n#endif /* GLEW_ES_ONLY */ \n" >> $@
 	echo -e "\n#endif /* !GLEW_MX */\n" >> $@;
-	#---move the common extensions to common folder---
-	$(BIN)/move_common_ext.sh $(EXT) $(EXT_ES) $(COMMON)
 	$(BIN)/make_init.pl GL $(GL_CORE_SPEC) >> $@
 	$(BIN)/make_init.pl GL $(GL_EXT_SPEC) >> $@
 	$(BIN)/make_init.pl GL $(GLES_CORE_SPEC) >> $@
