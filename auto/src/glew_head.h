@@ -38,6 +38,10 @@
 #define __KHRPLATFORM_H_
 
 
+#if defined(GLEW_USE_LIB_ES11) || defined(GLEW_USE_LIB_ES20)
+#define GLEW_USE_LIB_ES
+#endif
+
 /*
  * GLEW_STATIC is defined for static library.
  * GLEW_BUILD  is defined for building the DLL library.

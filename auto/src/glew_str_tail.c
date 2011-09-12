@@ -4,4 +4,4 @@
   return ret;
 }
 
-#endif /* GLEW_ES_ONLY */
+#endif /* GLEW_USE_LIB_ES */

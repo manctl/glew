@@ -4,7 +4,8 @@
   return ret;
 }
 
-#if defined(GLEW_ES_ONLY)
+#if defined(GLEW_USE_LIB_ES)
+#if defined(GLEW_INC_EGL)
 
 #if defined(GLEW_MX)
 GLboolean eglewContextIsSupported (const EGLEWContext* ctx, const char* name)
