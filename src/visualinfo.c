@@ -33,7 +33,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <GL/glew.h>
-#if defined(_WIN32)
+#if defined(GLEW_USE_LIB_ES)
+# if defined(GLEW_INC_EGL)
+#include <GL/eglew.h>
+#else
+#include <EGL/egl.h>
+#endif
+#elif defined(_WIN32)
 #include <GL/wglew.h>
 #elif defined(__APPLE__) && !defined(GLEW_APPLE_GLX)
 #include <AGL/agl.h>
@@ -44,7 +50,12 @@
 #ifdef GLEW_MX
 GLEWContext _glewctx;
 #  define glewGetContext() (&_glewctx)
-#  ifdef _WIN32
+#if defined(GLEW_USE_LIB_ES)
+#if defined(GLEW_INC_EGL)
+EGLEWContext _eglewctx;
+#    define eglewGetContext() (&_eglewctx)
+#endif
+#  elif defined _WIN32
 WGLEWContext _wglewctx;
 #    define wglewGetContext() (&_wglewctx)
 #  elif !defined(__APPLE__) || defined(GLEW_APPLE_GLX)
@@ -55,7 +66,15 @@ GLXEWContext _glxewctx;
 
 typedef struct GLContextStruct
 {
-#ifdef _WIN32
+#if defined(GLEW_USE_LIB_ES)
+  EGLDisplay eDpy;
+  EGLContext eCtx;
+  EGLSurface eSurf;
+#ifdef linux
+  Display *dpy;
+  Window wnd;
+#endif
+#elif defined _WIN32
   HWND wnd;
   HDC dc;
   HGLRC rc;
@@ -97,7 +116,11 @@ main (int argc, char** argv)
   /* parse arguments */
   if (GL_TRUE == ParseArgs(argc-1, argv+1))
   {
-#if defined(_WIN32)
+#if defined(GLEW_USE_LIB_ES)
+    fprintf(stderr, "Usage: visualinfo [-h] [-display <display>] \n");
+    fprintf(stderr, "        -h: this screen\n");
+    fprintf(stderr, "        -display <display>: use given display\n");
+#elif defined(_WIN32)
     fprintf(stderr, "Usage: visualinfo [-a] [-s] [-h] [-pf <id>]\n");
     fprintf(stderr, "        -a: show all visuals\n");
     fprintf(stderr, "        -s: display to stdout instead of visualinfo.txt\n");
@@ -127,7 +150,11 @@ main (int argc, char** argv)
   glewExperimental = GL_TRUE;
 #ifdef GLEW_MX
   err = glewContextInit(glewGetContext());
-#  ifdef _WIN32
+#if defined(GLEW_USE_LIB_ES)
+#if defined GLEW_INC_EGL
+ err = err || eglewContextInit(eglewGetContext());
+#endif
+# elif defined _WIN32
   err = err || wglewContextInit(wglewGetContext());
 #  elif !defined(__APPLE__) || defined(GLEW_APPLE_GLX)
   err = err || glxewContextInit(glxewGetContext());
@@ -171,7 +198,12 @@ main (int argc, char** argv)
 
   /* ---------------------------------------------------------------------- */
   /* extensions string */
-#if defined(_WIN32)
+#if defined(GLEW_USE_LIB_ES)
+  /* egl extensions */
+  fprintf(file, "egl extensions (EGL_): \n");
+  PrintExtensions(eglQueryString(ctx.eDpy, EGL_EXTENSIONS));
+ 
+#elif defined(_WIN32)
   /* WGL extensions */
   if (WGLEW_ARB_extensions_string || WGLEW_EXT_extensions_string)
   {
@@ -240,8 +272,288 @@ void PrintExtensions (const char* s)
 }
 
 /* ---------------------------------------------------------------------- */
+#if defined(GLEW_USE_LIB_ES)
 
-#if defined(_WIN32)
+void
+VisualInfo (GLContext* ctx)
+{
+  int n_configs;
+  EGLConfig* eglCfgs = NULL;
+  /* get no of config supported */
+  eglGetConfigs(ctx->eDpy, NULL, 0, &n_configs);
+  eglCfgs = (EGLConfig*) malloc(n_configs * sizeof(EGLConfig *));
+  if(eglCfgs == NULL) return;
+  int value, ret, i;
+
+  if (eglGetConfigs(ctx->eDpy, eglCfgs, n_configs, &n_configs))
+  {
+    if (!verbose)
+    {
+      /* print table header */
+	fprintf(file, " +-----+-----------------+------------------------------+---------+------+-----------+------+\n");
+	fprintf(file, " |     |     color       |           visual             | dp  st  |  ms  |    swap   |  cav |\n");
+	fprintf(file, " |  id |  sz  r  g  b  a |  tp nr      nt       nd   lv | th  cl  | b ns |  max  min |  eat |\n");
+	fprintf(file, " +-----+-----------------+------------------------------+---------+------+-----------+------+\n");
+
+    for (i=0; i<n_configs; i++)
+    {
+        /* print out the information for this config */
+ 
+        ret = eglGetConfigAttrib(ctx->eDpy, eglCfgs[i], EGL_CONFIG_ID, &value);
+        if (ret != EGL_TRUE)
+        {
+          fprintf(file, " | ?   |");
+        }
+        else
+        {
+          fprintf(file, " |% 4d |", value);
+        }
+	/* buffer size */
+	ret = eglGetConfigAttrib(ctx->eDpy, eglCfgs[i], EGL_BUFFER_SIZE, &value);
+    	if (ret != EGL_TRUE)
+        {
+          fprintf(file, " ?   ");
+        }
+        else
+        {
+          if (value)
+            fprintf(file, " %3d ", value);
+          else
+            fprintf(file, " . ");
+        }
+	/* red size */
+	ret = eglGetConfigAttrib(ctx->eDpy, eglCfgs[i], EGL_RED_SIZE, &value);
+    	if (ret != EGL_TRUE)
+        {
+          fprintf(file, " ? ");
+        }
+        else
+        {
+          if (value)
+            fprintf(file, "%2d ", value);
+          else
+            fprintf(file, " . ");
+        }
+	/* green  size */
+	ret = eglGetConfigAttrib(ctx->eDpy, eglCfgs[i], EGL_GREEN_SIZE, &value);
+    	if (ret != EGL_TRUE)
+        {
+          fprintf(file, " ? ");
+        }
+        else
+        {
+          if (value)
+            fprintf(file, "%2d ", value);
+          else
+            fprintf(file, " . ");
+        }
+	/* blue size */
+	ret = eglGetConfigAttrib(ctx->eDpy, eglCfgs[i], EGL_BLUE_SIZE, &value);
+    	if ( ret != EGL_TRUE)
+        {
+          fprintf(file, " ? ");
+        }
+        else
+        {
+          if (value)
+            fprintf(file, "%2d ", value);
+          else
+            fprintf(file, " . ");
+        }
+	/* alpha size */
+	ret = eglGetConfigAttrib(ctx->eDpy, eglCfgs[i], EGL_ALPHA_SIZE, &value);
+    	if (ret != EGL_TRUE)
+        {
+          fprintf(file, " ? | ");
+        }
+        else
+        {
+          if (value)
+            fprintf(file, "%2d | ", value);
+          else
+            fprintf(file, " . | ");
+        }
+ 	/* visual type */
+        ret = eglGetConfigAttrib(ctx->eDpy, eglCfgs[i], EGL_SURFACE_TYPE , &value);
+        if (ret != EGL_TRUE)
+        {
+          fprintf(file, " ? ");
+        }
+        else
+        {
+          if (value & EGL_WINDOW_BIT)
+          {
+             if (value & EGL_PIXMAP_BIT)
+             {
+		if(value & EGL_PBUFFER_BIT)
+		{
+              	    fprintf(file, "wpp ");
+		}
+		else
+            	{
+              	    fprintf(file, " wp ");
+            	}
+            }
+            else
+            {
+	        fprintf(file, " wn ");
+	    }
+	}
+	else
+	{
+            if (value & EGL_PIXMAP_BIT)
+            {
+		if(value & EGL_PBUFFER_BIT)
+		{ 
+              	    fprintf(file, " pp ");
+            	}
+		else
+		{
+		    fprintf(file, " px ");
+		}
+	    }
+            else if (value & EGL_PBUFFER_BIT)
+            {
+              fprintf(file, " pb ");
+            }
+            else
+            {
+              fprintf(file, " ? ");
+            }
+          }
+       }
+        /* native renderable */
+        ret = eglGetConfigAttrib(ctx->eDpy, eglCfgs[i], EGL_NATIVE_RENDERABLE, &value);
+        if (ret != EGL_TRUE)
+        {
+          fprintf(file, " ? ");
+        }
+        else
+        {
+          fprintf(file, value ? " y " : " n ");
+        }
+        /* native type */
+        ret = eglGetConfigAttrib(ctx->eDpy, eglCfgs[i], EGL_NATIVE_VISUAL_TYPE, &value);
+        if (ret != EGL_TRUE)
+        {
+          fprintf(file, "    ?    ");
+        }
+        else
+        {
+          fprintf(file, "%8d ", value);
+        }
+        /* native id */
+        ret = eglGetConfigAttrib(ctx->eDpy, eglCfgs[i], EGL_NATIVE_VISUAL_ID, &value);
+        if (ret != EGL_TRUE)
+        {
+          fprintf(file, "    ?    ");
+        }
+        else
+        {
+          fprintf(file, "%8d ", value);
+        }
+        /* level */
+        ret = eglGetConfigAttrib(ctx->eDpy, eglCfgs[i], EGL_LEVEL, &value);
+        if (ret != EGL_TRUE)
+        {
+          fprintf(file, "  ?  | ");
+        }
+        else
+        {
+          fprintf(file, " %2d |", value);
+        }
+        /* depth size */
+        ret = eglGetConfigAttrib(ctx->eDpy, eglCfgs[i], EGL_DEPTH_SIZE, &value);
+        if (ret != EGL_TRUE)
+        {
+          fprintf(file, " ?  ");
+        }
+        else
+        {
+          if (value)
+            fprintf(file, " %2d ", value);
+          else
+            fprintf(file, " . ");
+        }
+        /* stencil size */
+        ret = eglGetConfigAttrib(ctx->eDpy, eglCfgs[i], EGL_STENCIL_SIZE, &value);
+        if (ret != EGL_TRUE)
+        {
+          fprintf(file, " ?  | ");
+        }
+        else
+        {
+          if (value)
+            fprintf(file, " %2d  | ", value);
+          else
+            fprintf(file, " .  | ");
+        }
+       /* multisample */
+        ret = eglGetConfigAttrib(ctx->eDpy, eglCfgs[i], EGL_SAMPLE_BUFFERS, &value);
+        if (ret != EGL_TRUE)
+        {
+          fprintf(file, "? ");
+        }
+        else
+        {
+          fprintf(file, "%1d ", value);
+        }
+        ret = eglGetConfigAttrib(ctx->eDpy, eglCfgs[i], EGL_SAMPLES, &value);
+        if ( ret != EGL_TRUE)
+        {
+          fprintf(file, " ? | ");
+        }
+        else
+        {
+          fprintf(file, "%2d | ", value);
+        }
+        /* swap */
+        ret = eglGetConfigAttrib(ctx->eDpy, eglCfgs[i], EGL_MAX_SWAP_INTERVAL, &value);
+        if (ret != EGL_TRUE)
+        {
+          fprintf(file, " ?  ");
+        }
+        else
+        {
+          fprintf(file, "%4d ", value);
+        }
+        ret = eglGetConfigAttrib(ctx->eDpy, eglCfgs[i], EGL_MIN_SWAP_INTERVAL, &value);
+        if (ret != EGL_TRUE)
+        {
+          fprintf(file, "  ?   | ");
+        }
+        else
+        {
+          fprintf(file, "%4d | ", value);
+        }
+        /* caveat */
+        ret = eglGetConfigAttrib(ctx->eDpy, eglCfgs[i], EGL_CONFIG_CAVEAT , &value);
+        if (ret != EGL_TRUE)
+        {
+          fprintf(file, "???? |\n");
+        }
+        else
+        {
+          if (EGL_NONE  == value)
+            fprintf(file, "none |\n");
+          else if (EGL_SLOW_CONFIG  == value)
+            fprintf(file, "slow |\n");
+          else if ( EGL_NON_CONFORMANT_CONFIG == value)
+            fprintf(file, "ncft |\n");
+          else
+            fprintf(file, "???? |\n");
+        }
+      }
+     /* print table footer */
+     fprintf(file, " +-----+-----------------+------------------------------+---------+------+-----------+------+\n");
+     fprintf(file, " |  id |  sz  r  g  b  a |  tp nr      nt       nd   lv | th  cl  | b ns |  max  min | eat  |\n" ); 
+     fprintf(file, " |     |     color       |             visual           | dp  st  |  ms  |    swap   | cav  |\n");
+     fprintf(file, " +-----+-----------------+------------------------------+---------+------+-----------+------+\n");
+    }
+  }    
+}
+
+#elif defined(_WIN32)
 
 void
 VisualInfoARB (GLContext* ctx)
@@ -974,7 +1286,68 @@ VisualInfo (GLContext* ctx)
 
 /* ------------------------------------------------------------------------ */
 
-#if defined(_WIN32)
+#if defined(GLEW_USE_LIB_ES)
+void InitContext (GLContext* ctx)
+{
+   if (NULL == ctx) return;
+   ctx->eDpy = NULL;
+   ctx->eCtx = NULL;
+   ctx->eSurf = NULL;
+#ifdef linux
+  ctx->dpy = NULL;
+  ctx->wnd = (Window)NULL;
+#endif
+}
+
+GLboolean CreateContext (GLContext* ctx)
+{
+   EGLConfig cfg[1];
+   EGLint noCfg = 0;
+#ifdef GLEW_USE_LIB_ES20
+   EGLint attribs[] = {EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+                       EGL_SURFACE_TYPE, EGL_WINDOW_BIT,EGL_NONE};
+   EGLint contextAttribs[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
+#else
+   EGLint attribs[] = {EGL_SURFACE_TYPE, EGL WINDOW BIT,EGL_NONE};
+   EGLint contextAttribs[] = {EGL_NONE};	
+#endif
+
+#ifdef linux
+	ctx->dpy = XOpenDisplay(display);
+    if(ctx->dpy == NULL) return GL_TRUE;
+	ctx->wnd = XCreateSimpleWindow(ctx->dpy, DefaultRootWindow(ctx->dpy), 0, 0, 1, 1,
+								   				0, 0, 0);
+#endif
+
+   ctx->eDpy = eglGetDisplay(ctx->dpy);
+   if(ctx->eDpy == NULL) return GL_TRUE;
+   if(!eglInitialize(ctx->eDpy, NULL, NULL)) return GL_TRUE;
+   if(!eglChooseConfig(ctx->eDpy, attribs, cfg, 1, &noCfg)) return EGL_TRUE;
+   ctx->eCtx = eglCreateContext(ctx->eDpy, cfg[0], EGL_NO_CONTEXT, contextAttribs);
+   if(ctx->eCtx == NULL) return GL_TRUE;
+   ctx->eSurf = eglCreateWindowSurface(ctx->eDpy, cfg[0], (EGLNativeWindowType)ctx->wnd, NULL);
+   if(ctx->eSurf == NULL) return GL_TRUE;
+   if(!eglMakeCurrent(ctx->eDpy, ctx->eSurf, ctx->eSurf, ctx->eCtx)) return GL_TRUE;
+   return GL_FALSE;
+
+}
+
+void DestroyContext (GLContext* ctx)
+{
+   if (NULL == ctx) return;
+   if (!ctx->eDpy && !ctx->eSurf && !ctx->eCtx) eglMakeCurrent(ctx->eDpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+   if (!ctx->eDpy && !ctx->eSurf) eglDestroySurface(ctx->eDpy, ctx->eSurf);
+   if (!ctx->eDpy && !ctx->eCtx) eglDestroyContext(ctx->eDpy, ctx->eCtx);
+   if (!ctx->eDpy) eglTerminate(ctx->eDpy);
+#ifdef linux
+	if(NULL != ctx->dpy && 0 != ctx->wnd) XDestroyWindow(ctx->dpy, ctx->wnd);
+    if(NULL != ctx->dpy) XCloseDisplay(ctx->dpy);
+#endif
+}
+
+
+
+#elif defined(_WIN32)
 
 void InitContext (GLContext* ctx)
 {
@@ -1131,7 +1504,20 @@ GLboolean ParseArgs (int argc, char** argv)
   int p = 0;
   while (p < argc)
   {
-#if defined(_WIN32)
+#if defined(GLEW_USE_LIB_ES)
+    if (!strcmp(argv[p], "-display"))
+    {
+      if (++p >= argc) return GL_TRUE;
+      display = argv[p];
+	  visual = -1;
+    }
+    else if (!strcmp(argv[p], "-h"))
+    {
+      return GL_TRUE;
+    }
+    else
+      return GL_TRUE;
+#elif defined(_WIN32)
     if (!strcmp(argv[p], "-pf") || !strcmp(argv[p], "-pixelformat"))
     {
       if (++p >= argc) return GL_TRUE;
