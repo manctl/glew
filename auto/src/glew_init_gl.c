@@ -71,10 +71,14 @@ GLenum glewContextInit (GLEW_CONTEXT_ARG_DEF_LIST)
   }
   else
   {
+#ifdef GLEW_NO_ES
+	return GLEW_ERROR_GLES_VERSION;
+#else
     CONST_CAST(GLEW_ES_VERSION_2_0)     = ( major > 2 )                         || ( major == 2 && minor >= 0 ) ? GL_TRUE :GL_FALSE;
     CONST_CAST(GLEW_ES_VERSION_CL_1_1)  = GLEW_ES_VERSION_2_0       == GL_TRUE  || ( major == 1 && minor >= 1 ) ? GL_TRUE :GL_FALSE;
     CONST_CAST(GLEW_ES_VERSION_CM_1_1)  = GLEW_ES_VERSION_2_0       == GL_TRUE  || ( major == 1 && minor >= 1 ) ? GL_TRUE :GL_FALSE;
     CONST_CAST(GLEW_ES_VERSION_1_0)     = GLEW_ES_VERSION_CL_1_1    == GL_TRUE  || ( major == 1 && minor >= 0 ) ? GL_TRUE :GL_FALSE;
+#endif
   }		                     
 
   /* query opengl extensions string */

@@ -12,6 +12,18 @@
 /* included for NULL header */
 #include <stddef.h>
 
+#if defined(GLEW_ES_ONLY) && !defined(GLEW_USE_LIB_ES)
+#error either GLEW_ES_ONLY(for pure ES) or GLEW_NO_ES(for pure desktop OpenGL) should be present
+#endif
+
+#if defined(GLEW_NO_ES) && defined(GLEW_USE_LIB_ES)
+#error either GLEW_USE_LIB_ES(ES lib is linked) or GLEW_NO_ES(pure desktop OpenGL) should be present
+#endif
+
+#if defined(GLEW_INC_EGL) && !defined(GLEW_USE_LIB_ES)
+#error desktop OpenGL does not use EGL
+#endif
+
 /*
  * Define glewGetContext and related helper macros.
  */

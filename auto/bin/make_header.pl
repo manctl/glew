@@ -45,6 +45,7 @@ my %extensions = ();
 
 our $api = shift;
 our $type = shift;
+our $es = shift;
 
 if (@ARGV)
 {
@@ -55,7 +56,12 @@ if (@ARGV)
 		my ($extname, $exturl, $extstring, $types, $tokens, $functions, $exacts) = parse_ext($ext);
 
 		make_separator($extname);
-		print "#ifndef $extname\n#define $extname 1\n";
+		print "#if !defined($extname) ";
+		if($es eq "NO_ES")
+		{
+			print "&& !defined(GLEW_NO_ES)";
+		}
+		print "\n#define $extname 1\n";
 		output_tokens($tokens, \&make_define);
 		output_types($types, \&make_type);
 		output_exacts($exacts, \&make_exact);
@@ -66,6 +72,11 @@ if (@ARGV)
 		$extvar =~ s/GL(X*)_/GL$1EW_/;
 		
 		print "\n#define $extvar " . $type . "EW_GET_VAR(" . prefix_varname($extvar) . ")\n";
-		print "\n#endif /* $extname */\n\n";
+		print "\n#endif /* !$extname ";
+		if($es eq "NO_ES")
+		{
+			print "&& !GLEW_NO_ES";
+		}
+		print "*/\n\n";
 	}
 }

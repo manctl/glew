@@ -168,18 +168,22 @@ $(I.DEST)/glew.h: $(EXT)/.dummy $(EXT_ES)/.dummy
 	cat $(SRC)/mesa_license.h >> $@
 	cat $(SRC)/khronos_license.h >> $@
 	cat $(SRC)/glew_head.h >> $@
-	$(BIN)/make_header.pl GLAPIENTRY GL $(GL_CORE_SPEC) >> $@
-	$(BIN)/make_header.pl GLAPIENTRY GL $(GL_EXT_SPEC) >> $@
-	$(BIN)/make_header.pl GLAPIENTRY GL $(GLES_CORE_WITH_OPENGL_SPEC) >> $@
-	$(BIN)/make_header.pl GLAPIENTRY GL $(GLES_EXT_SPEC) >> $@
+	$(BIN)/make_header.pl GLAPIENTRY GL '' $(GL_CORE_SPEC) >> $@
+	$(BIN)/make_header.pl GLAPIENTRY GL '' $(GL_EXT_SPEC) >> $@
+	$(BIN)/make_header.pl GLAPIENTRY GL 'NO_ES' $(GLES_CORE_WITH_OPENGL_SPEC) >> $@
+	$(BIN)/make_header.pl GLAPIENTRY GL 'NO_ES' $(GLES_EXT_SPEC) >> $@
 	echo -e "/* ------------------------------------------------------------------------- */\n\n#if defined(GLEW_MX) && defined(_WIN32)\n#define GLEW_FUN_EXPORT\n#else\n#define GLEW_FUN_EXPORT GLEWAPI\n#endif /* GLEW_MX */\n" >> $@
 	echo -e "#if defined(GLEW_MX)\n#define GLEW_VAR_EXPORT\n#else\n#define GLEW_VAR_EXPORT GLEWAPI\n#endif /* GLEW_MX */\n" >> $@
 	echo -e "#if defined(GLEW_MX) && defined(_WIN32)\nstruct GLEWContextStruct\n{\n#endif /* GLEW_MX */" >> $@
 	$(BIN)/make_struct_fun.pl GLEW_FUN_EXPORT $(GL_CORE_SPEC) $(GL_EXT_SPEC) >> $@
+	echo -e "\n#if !defined(GLEW_NO_ES)\n" >> $@
 	$(BIN)/make_struct_fun.pl GLEW_FUN_EXPORT $(GLES_CORE_WITH_OPENGL_SPEC) $(GLES_EXT_SPEC) >> $@
+	echo -e "#endif /* !(GLEW_NO_ES) */\n" >> $@
 	echo -e "\n#if defined(GLEW_MX) && !defined(_WIN32)\nstruct GLEWContextStruct\n{\n#endif /* GLEW_MX */\n" >> $@
 	$(BIN)/make_struct_var.pl GLEW_VAR_EXPORT $(GL_CORE_SPEC) $(GL_EXT_SPEC) >> $@
+	echo -e "\n#if !defined(GLEW_NO_ES)\n" >> $@
 	$(BIN)/make_struct_var.pl GLEW_VAR_EXPORT $(GLES_CORE_WITH_OPENGL_SPEC) $(GLES_EXT_SPEC) >> $@
+	echo -e "#endif /* !(GLEW_NO_ES) */\n" >> $@
 	echo -e "\n#ifdef GLEW_MX\n}; /* GLEWContextStruct */\n#endif /* GLEW_MX */\n" >> $@
 	rm -f $@.bak
 	cat $(SRC)/glew_tail.h >> $@
@@ -192,8 +196,8 @@ $(I.DEST)/glesew.h: $(EXT_ES)/.dummy
 	@echo "--------------------------------------------------------------------"
 	cp -f $(SRC)/glew_license.h $@
 	cat $(SRC)/glesew_head.h >> $@
-	$(BIN)/make_header.pl GLAPIENTRY GL $(GLES_CORE_SPEC) >> $@
-	$(BIN)/make_header.pl GLAPIENTRY GL $(GLES_EXT_SPEC) >> $@
+	$(BIN)/make_header.pl GLAPIENTRY GL '' $(GLES_CORE_SPEC) >> $@
+	$(BIN)/make_header.pl GLAPIENTRY GL '' $(GLES_EXT_SPEC) >> $@
 	echo -e "/* ------------------------------------------------------------------------- */\n\n#if defined(GLEW_MX) && defined(_WIN32)\n#define GLEW_FUN_EXPORT\n#else\n#define GLEW_FUN_EXPORT GLEWAPI\n#endif /* GLEW_MX */\n" >> $@
 	echo -e "#if defined(GLEW_MX)\n#define GLEW_VAR_EXPORT\n#else\n#define GLEW_VAR_EXPORT GLEWAPI\n#endif /* GLEW_MX */\n" >> $@
 	echo -e "#if defined(GLEW_MX) && defined(_WIN32)\nstruct GLEWContextStruct\n{\n#endif /* GLEW_MX */" >> $@
@@ -212,8 +216,8 @@ $(I.DEST)/eglew.h: $(EXT_EGL)/.dummy
 	cp -f $(SRC)/glew_license.h $@
 	cat $(SRC)/khronos_license.h >> $@
 	cat $(SRC)/eglew_head.h >> $@
-	$(BIN)/make_header.pl EGLAPIENTRY EGL $(EGL_CORE_SPEC) >> $@
-	$(BIN)/make_header.pl EGLAPIENTRY EGL $(EGL_EXT_SPEC) >> $@
+	$(BIN)/make_header.pl EGLAPIENTRY EGL '' $(EGL_CORE_SPEC) >> $@
+	$(BIN)/make_header.pl EGLAPIENTRY EGL '' $(EGL_EXT_SPEC) >> $@
 	echo -e "/* ------------------------------------------------------------------------- */\n\n#if defined(GLEW_MX) && defined(_WIN32)\n #define EGLEW_FUN_EXPORT \n #else \n #define EGLEW_FUN_EXPORT GLEWAPI \n #endif /* GLEW_MX */\n" >> $@
 	echo -e  "#if defined(GLEW_MX)\n #define EGLEW_VAR_EXPORT\n#else\n#define EGLEW_VAR_EXPORT GLEWAPI \n #endif /* GLEW_MX */\n\n#if defined (GLEW_MX) && defined(_WIN32)\nstruct EGLEWContextStruct\n{\n#endif /* GLEW_MX */" >> $@
 	$(BIN)/make_struct_fun.pl EGLEW_FUN_EXPORT $(EGL_CORE_SPEC) $(EGL_EXT_SPEC) >> $@
@@ -230,7 +234,7 @@ $(I.DEST)/wglew.h: $(EXT)/.dummy
 	cp -f $(SRC)/glew_license.h $@
 	cat $(SRC)/khronos_license.h >> $@
 	cat $(SRC)/wglew_head.h >> $@
-	$(BIN)/make_header.pl WINAPI WGL $(WGL_EXT_SPEC) >> $@
+	$(BIN)/make_header.pl WINAPI WGL '' $(WGL_EXT_SPEC) >> $@
 	echo -e "/* ------------------------------------------------------------------------- */\n\n#ifdef GLEW_MX\n#define WGLEW_EXPORT\n#else\n#define WGLEW_EXPORT GLEWAPI\n#endif /* GLEW_MX */\n\n#ifdef GLEW_MX\nstruct WGLEWContextStruct\n{\n#endif /* GLEW_MX */" >> $@
 	$(BIN)/make_struct_fun.pl WGLEW_EXPORT $(WGL_EXT_SPEC) >> $@
 	$(BIN)/make_struct_var.pl WGLEW_EXPORT $(WGL_EXT_SPEC) >> $@
@@ -245,8 +249,8 @@ $(I.DEST)/glxew.h: $(EXT)/.dummy
 	cat $(SRC)/mesa_license.h >> $@
 	cat $(SRC)/khronos_license.h >> $@
 	cat $(SRC)/glxew_head.h >> $@
-	$(BIN)/make_header.pl '' GLX $(GLX_CORE_SPEC) >> $@
-	$(BIN)/make_header.pl '' GLX $(GLX_EXT_SPEC) >> $@
+	$(BIN)/make_header.pl '' GLX '' $(GLX_CORE_SPEC) >> $@
+	$(BIN)/make_header.pl '' GLX '' $(GLX_EXT_SPEC) >> $@
 	echo -e "/* ------------------------------------------------------------------------- */\n\n#ifdef GLEW_MX\n#define GLXEW_EXPORT\n#else\n#define GLXEW_EXPORT extern\n#endif /* GLEW_MX */" >> $@
 	$(BIN)/make_struct_fun.pl extern $(GLX_CORE_SPEC) $(GLX_EXT_SPEC) >> $@
 	echo -e "\n#if defined(GLEW_MX)\nstruct GLXEWContextStruct\n{\n#endif /* GLEW_MX */\n" >> $@
@@ -267,8 +271,10 @@ $(S.DEST)/glew.c: $(EXT)/.dummy $(EXT_EGL)/.dummy $(EXT_ES)/.dummy
 	echo -e "\n#ifndef GLEW_ES_ONLY \n" >> $@
 	$(BIN)/make_def_fun.pl GL $(GL_CORE_SPEC) >> $@
 	$(BIN)/make_def_fun.pl GL $(GL_EXT_SPEC) >> $@
+	echo -e "\n#if !defined(GLEW_NO_ES)\n" >> $@
 	$(BIN)/make_def_fun.pl GL $(GLES_CORE_WITH_OPENGL_SPEC) >> $@
 	$(BIN)/make_def_fun.pl GL $(GLES_EXT_SPEC) >> $@
+	echo -e "\n#endif /* !(GLEW_NO_ES) */\n" >> $@
 	echo -e "\n#else   \n" >> $@
 	$(BIN)/make_def_fun.pl GL $(GLES_CORE_SPEC) >> $@
 	$(BIN)/make_def_fun.pl GL $(GLES_EXT_SPEC) >> $@
@@ -279,8 +285,10 @@ $(S.DEST)/glew.c: $(EXT)/.dummy $(EXT_EGL)/.dummy $(EXT_ES)/.dummy
 	echo -e "\n#ifndef GLEW_ES_ONLY \n" >> $@
 	$(BIN)/make_def_var.pl GL $(GL_CORE_SPEC) >> $@
 	$(BIN)/make_def_var.pl GL $(GL_EXT_SPEC) >> $@
+	echo -e "\n#if !defined(GLEW_NO_ES)\n" >> $@
 	$(BIN)/make_def_var.pl GL $(GLES_CORE_WITH_OPENGL_SPEC) >> $@
 	$(BIN)/make_def_var.pl GL $(GLES_EXT_SPEC) >> $@
+	echo -e "\n#endif /* !(GLEW_NO_ES) */\n" >> $@
 	echo -e "\n#else \n" >> $@
 	$(BIN)/make_def_var.pl GL $(GLES_CORE_SPEC) >> $@
 	$(BIN)/make_def_var.pl GL $(GLES_EXT_SPEC) >> $@

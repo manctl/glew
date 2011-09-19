@@ -9,7 +9,7 @@
 #define GLEW_ERROR_GL_VERSION_10_ONLY 2  /* Need at least OpenGL 1.1 */
 #define GLEW_ERROR_GLX_VERSION_11_ONLY 3  /* Need at least GLX 1.2 */
 #define GLEW_ERROR_NOT_GLES_VERSION 4   /* Need to be OpenGL ES version */
-
+#define GLEW_ERROR_GLES_VERSION 5	/* Need to be desktop OpenGL version */
 /* string codes */
 #define GLEW_VERSION 1
 #define GLEW_VERSION_MAJOR 2
