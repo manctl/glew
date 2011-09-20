@@ -29,7 +29,6 @@ if [ ! -d $1 ] ; then
    
 
 # remove duplicates functions in EGL_KHR_fence_sync and EGL_KHR_reusable_sync
-#TODO : fix for duplicate functions ??
     grep -v -F -f $1/EGL_KHR_reusable_sync $1/EGL_KHR_fence_sync  > tmp
     mv tmp $1/EGL_KHR_fence_sync
  

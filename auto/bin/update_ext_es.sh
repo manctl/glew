@@ -28,7 +28,6 @@ if [ ! -d $1 ] ; then
    mv tmp $1/GL_OES_EGL_image_external
 
 # remove duplicates in GL_OES_EGL_image_external and GL_OES_EGL_image
-#TODO: fix for duplicate functions ??
     head -1 $1/GL_OES_EGL_image_external > tmp  
 	grep -v -F -f $1/GL_OES_EGL_image $1/GL_OES_EGL_image_external >> tmp
 	sed 's/txt/ txt \nGL_OES_EGL_image_external /g' tmp > tmp1
