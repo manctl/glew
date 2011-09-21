@@ -94,8 +94,10 @@ D.TARGETS = \
 	$(D.DEST)/credits.html \
 	$(D.DEST)/log.html \
 	$(D.DEST)/glew.html \
+	$(D.DEST)/glesew.html	\
 	$(D.DEST)/wglew.html \
-	$(D.DEST)/glxew.html
+	$(D.DEST)/glxew.html	\
+	$(D.DEST)/eglew.html
 
 B.TARGETS = \
 	$(B.DEST)/glew.rc \
@@ -507,6 +509,16 @@ $(D.DEST)/glew.html: $(EXT)/.dummy
 	cat $(SRC)/footer.html >> $@
 	perl -i -pe 's#<a href="$(@F)">(.*)</a>#\1#' $@
 
+$(D.DEST)/glesew.html: $(EXT_ES)/.dummy
+	@echo "--------------------------------------------------------------------"
+	@echo "Creating glesew.html"
+	@echo "--------------------------------------------------------------------"
+	cp -f $(SRC)/header.html $@
+	echo -e "<h2>Supported OpenGL ES Extensions</h2>\n" >> $@
+	$(BIN)/make_html.pl $(GLES_EXT_SPEC) >> $@
+	cat $(SRC)/footer.html >> $@
+	perl -i -pe 's#<a href="$(@F)">(.*)</a>#\1#' $@
+
 $(D.DEST)/wglew.html: $(EXT)/.dummy
 	@echo "--------------------------------------------------------------------"
 	@echo "Creating wglew.html"
@@ -527,6 +539,17 @@ $(D.DEST)/glxew.html: $(EXT)/.dummy
 	cat $(SRC)/footer.html >> $@
 	perl -i -pe 's#<a href="$(@F)">(.*)</a>#\1#' $@
 
+$(D.DEST)/eglew.html: $(EXT_EGL)/.dummy
+	@echo "--------------------------------------------------------------------"
+	@echo "Creating eglew.html"
+	@echo "--------------------------------------------------------------------"
+	cp -f $(SRC)/header.html $@
+	echo -e "<h2>Supported EGL Extensions</h2>\n" >> $@
+	$(BIN)/make_html.pl $(EGL_EXT_SPEC) >> $@
+	cat $(SRC)/footer.html >> $@
+	perl -i -pe 's#<a href="$(@F)">(.*)</a>#\1#' $@
+
+
 $(B.DEST)/%.rc: src/%.rc $(EXT)/.dummy
 	perl -e "s/GLEW_MAJOR/$(GLEW_MAJOR)/g;s/GLEW_MINOR/$(GLEW_MINOR)/g;s/GLEW_MICRO/$(GLEW_MICRO)/g;" -p $< > $@
 
@@ -534,7 +557,7 @@ clean:
 	rm -rf $(I.TARGETS) $(S.TARGETS) $(D.TARGETS) $(B.TARGETS)
 
 clobber: clean
-	rm -rf $(EXT)
+	rm -rf $(EXT) $(EXT_ES) $(EXT_EGL)
 
 destroy: clobber
-	rm -rf $(REGISTRY)
+	rm -rf $(REGISTRY) $(REGISTRY_ES) $(REGISTRY_EGL)
