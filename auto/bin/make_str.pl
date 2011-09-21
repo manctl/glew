@@ -9,19 +9,29 @@
 
 use strict;
 use warnings;
+use File::Basename;
 
 do 'bin/make.pl';
 
 my @extlist = ();
 my %extensions = ();
+my @temp = ();
 
 if (@ARGV)
 {
     @extlist = @ARGV;
 
 	my $curexttype = "";
-	foreach my $ext (sort @extlist)
+
+	foreach my $fullname (@extlist)
 	{
+		my $filename = basename($fullname);
+		push(@temp, "$filename\t$fullname");
+	}
+
+	foreach my $val (sort(@temp))
+	{
+		my ($filename, $ext) = split(/\t/, $val);
 		my ($extname, $exturl, $extstring, $types, $tokens, $functions, $exacts) = parse_ext($ext);
 		my $exttype = $extname;
 		$exttype =~ s/([E|W]*?)GL(X*?)_(.*?_)(.*)/$3/;
