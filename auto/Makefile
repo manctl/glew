@@ -441,18 +441,33 @@ $(S.DEST)/glewinfo.c: $(EXT)/.dummy
 	@echo "--------------------------------------------------------------------"
 	cp -f $(SRC)/glew_license.h $@
 	cat $(SRC)/glewinfo_head.c >> $@
+	#---move the common extensions to common folder---
+	$(BIN)/move_common_ext.sh $(EXT) $(EXT_ES) $(COMMON)
 	$(BIN)/make_info.pl $(GL_CORE_SPEC) >> $@
+	$(BIN)/make_info.pl $(GLES_CORE_SPEC) >> $@
 	$(BIN)/make_info.pl $(GL_EXT_SPEC) >> $@
-	echo -e "#ifdef _WIN32\n" >> $@
+	$(BIN)/make_info.pl $(GLES_EXT_SPEC) >> $@
+	echo -e "#if defined (GLEW_USE_LIB_ES)\n" >> $@
+	echo -e "#if defined (GLEW_INC_EGL)\n" >> $@
+	echo -e "#ifdef EGL_VERSION_1_1\n\nstatic void _glewInfo_EGL_VERSION_1_1() \n{\n\tglewPrintExt(\"EGL_VERSION_1_1\", EGLEW_VERSION_1_1, EGLEW_VERSION_1_1, EGLEW_VERSION_1_1);\n}\n\n#endif /* EGL_VERSION_1_1 */\n" >> $@
+	$(BIN)/make_info.pl $(EGL_CORE_SPEC) >> $@
+	$(BIN)/make_info.pl $(EGL_EXT_SPEC) >> $@
+	echo -e "#endif /* GLEW_INC_EGL */" >> $@
+	echo -e "#elif defined (_WIN32)\n" >> $@
 	$(BIN)/make_info.pl $(WGL_EXT_SPEC) >> $@
 	echo -e "#else /* _UNIX */\n" >> $@
 	$(BIN)/make_info.pl $(GLX_CORE_SPEC) >> $@
 	$(BIN)/make_info.pl $(GLX_EXT_SPEC) >> $@
-	echo -e "#endif /* _WIN32 */\n" >> $@
+	echo -e "#endif /* GLEW_USE_LIB_ES */\n" >> $@
 
 	cat $(SRC)/glewinfo_gl.c >> $@
 	$(BIN)/make_info_list.pl $(GL_CORE_SPEC) >> $@
+	$(BIN)/make_info_list.pl $(GLES_CORE_SPEC) >> $@
 	$(BIN)/make_info_list.pl $(GL_EXT_SPEC) >> $@
+	$(BIN)/make_info_list.pl $(GLES_EXT_SPEC) >> $@
+	cat $(SRC)/glewinfo_egl.c >> $@
+	$(BIN)/make_info_list.pl $(EGL_CORE_SPEC) >> $@
+	$(BIN)/make_info_list.pl $(EGL_EXT_SPEC) >> $@
 	cat $(SRC)/glewinfo_wgl.c >> $@
 	$(BIN)/make_info_list.pl $(WGL_EXT_SPEC) >> $@
 	cat $(SRC)/glewinfo_glx.c >> $@
@@ -460,6 +475,10 @@ $(S.DEST)/glewinfo.c: $(EXT)/.dummy
 	$(BIN)/make_info_list.pl $(GLX_EXT_SPEC) >> $@
 	cat $(SRC)/glewinfo_tail.c >> $@
 	perl -e 's/"glColorSubTable"/"glBlendEquation", glBlendEquation == NULL);\n  glewInfoFunc("glColorSubTable"/g' -pi $@
+	perl -00 -e "s/glewGetExtension\(\"GL_OES_EGL_image_external \"\)\);/glewGetExtension(\"GL_OES_EGL_image_external \"));\n\n\tglewInfoFunc(\"glEGLImageTargetTexture2DOES\", glEGLImageTargetTexture2DOES == NULL);/" -pi $@
+	perl -00 -e "s/eglewGetExtension\(\"EGL_KHR_fence_sync\"\)\);/eglewGetExtension(\"EGL_KHR_fence_sync\"));\n\n\tglewInfoFunc(\"eglClientWaitSyncKHR\", eglClientWaitSyncKHR == NULL);\n\tglewInfoFunc(\"eglCreateSyncKHR\", eglCreateSyncKHR == NULL);\n\tglewInfoFunc(\"eglDestroySyncKHR\", eglDestroySyncKHR == NULL);\n\tglewInfoFunc(\"eglGetSyncAttribKHR\", eglGetSyncAttribKHR == NULL); /" -pi $@
+	#---remove the common folder and copy back the files---
+	$(BIN)/move_back_common_ext.sh $(EXT_ES) $(COMMON)
 	rm -f $@.bak
 
 # Update documentation

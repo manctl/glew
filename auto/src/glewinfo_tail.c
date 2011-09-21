@@ -1,10 +1,10 @@
 }
 
-#endif /* _WIN32 */
+#endif /* GLEW_USE_LIB_ES */
 
 /* ------------------------------------------------------------------------ */
 
-#if defined(_WIN32) || !defined(__APPLE__) || defined(GLEW_APPLE_GLX)
+#if defined(_WIN32) || !defined(__APPLE__) || defined(GLEW_APPLE_GLX) || defined(GLEW_USE_LIB_ES)
 int main (int argc, char** argv)
 #else
 int main (void)
@@ -12,13 +12,15 @@ int main (void)
 {
   GLuint err;
 
-#if defined(_WIN32) || !defined(__APPLE__) || defined(GLEW_APPLE_GLX)
+#if defined(_WIN32) || !defined(__APPLE__) || defined(GLEW_APPLE_GLX) || defined(GLEW_USE_LIB_ES)
   char* display = NULL;
   int visual = -1;
 
   if (glewParseArgs(argc-1, argv+1, &display, &visual))
   {
-#if defined(_WIN32)
+# if defined(GLEW_USE_LIB_ES)
+   fprintf(stderr, "Usage: glewinfo [-display <display>] \n");
+# elif defined(_WIN32)
     fprintf(stderr, "Usage: glewinfo [-pf <id>]\n");
 #else
     fprintf(stderr, "Usage: glewinfo [-display <display>] [-visual <id>]\n");
@@ -27,7 +29,9 @@ int main (void)
   }
 #endif
 
-#if defined(_WIN32)
+# if defined(GLEW_USE_LIB_ES)
+if (GL_TRUE == glewCreateContext(display))
+#elif defined(_WIN32)
   if (GL_TRUE == glewCreateContext(&visual))
 #elif defined(__APPLE__) && !defined(GLEW_APPLE_GLX)
   if (GL_TRUE == glewCreateContext())
@@ -42,7 +46,11 @@ int main (void)
   glewExperimental = GL_TRUE;
 #ifdef GLEW_MX
   err = glewContextInit(glewGetContext());
-#ifdef _WIN32
+# if defined(GLEW_USE_LIB_ES)
+#if defined GLEW_INC_EGL
+  err = eglewContextInit(eglewGetContext());
+#endif
+#elif defined _WIN32
   err = err || wglewContextInit(wglewGetContext());
 #elif !defined(__APPLE__) || defined(GLEW_APPLE_GLX)
   err = err || glxewContextInit(glxewGetContext());
@@ -67,7 +75,10 @@ int main (void)
   fprintf(f, "    GLEW Extension Info\n");
   fprintf(f, "---------------------------\n\n");
   fprintf(f, "GLEW version %s\n", glewGetString(GLEW_VERSION));
-#if defined(_WIN32)
+# if defined(GLEW_USE_LIB_ES)
+  fprintf(f, "Reporting capabilities of display %s , \n", 
+    display == NULL ? getenv("DISPLAY") : (char *)display);
+#elif defined(_WIN32)
   fprintf(f, "Reporting capabilities of pixelformat %d\n", visual);
 #elif !defined(__APPLE__) || defined(GLEW_APPLE_GLX)
   fprintf(f, "Reporting capabilities of display %s, visual 0x%x\n", 
@@ -77,7 +88,11 @@ int main (void)
 	  glGetString(GL_RENDERER), glGetString(GL_VENDOR));
   fprintf(f, "OpenGL version %s is supported\n", glGetString(GL_VERSION));
   glewInfo();
-#if defined(_WIN32)
+# if defined(GLEW_USE_LIB_ES)
+#if defined (GLEW_INC_EGL)
+  eglewInfo();
+#endif
+#elif defined(_WIN32)
   wglewInfo();
 #else
   glxewInfo();
@@ -89,13 +104,22 @@ int main (void)
 
 /* ------------------------------------------------------------------------ */
 
-#if defined(_WIN32) || !defined(__APPLE__) || defined(GLEW_APPLE_GLX)
+#if defined(_WIN32) || !defined(__APPLE__) || defined(GLEW_APPLE_GLX) || defined(GLEW_USE_LIB_ES)
 GLboolean glewParseArgs (int argc, char** argv, char** display, int* visual)
 {
   int p = 0;
   while (p < argc)
   {
-#if defined(_WIN32)
+#if defined(GLEW_USE_LIB_ES)
+    if (!strcmp(argv[p], "-display"))
+    {
+      if (++p >= argc) return GL_TRUE;
+      *display = argv[p++];
+	  *visual = -1;
+    }
+    else
+      return GL_TRUE;
+#elif defined(_WIN32)
     if (!strcmp(argv[p], "-pf") || !strcmp(argv[p], "-pixelformat"))
     {
       if (++p >= argc) return GL_TRUE;
@@ -125,7 +149,59 @@ GLboolean glewParseArgs (int argc, char** argv, char** display, int* visual)
 
 /* ------------------------------------------------------------------------ */
 
-#if defined(_WIN32)
+#if defined(GLEW_USE_LIB_ES)
+
+EGLDisplay eDpy = NULL;
+EGLSurface eSurf = NULL;
+EGLContext eCtx = NULL;
+
+Display *dpy;
+Window wnd;
+
+
+GLboolean glewCreateContext (const char* display)
+{
+   int noCfg = 0;
+   EGLConfig cfg[1];
+# if defined(GLEW_USE_LIB_ES20)
+   EGLint attribs[] = {EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+                       EGL_SURFACE_TYPE, EGL_WINDOW_BIT,EGL_NONE};
+   EGLint contextAttribs[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
+#else
+   EGLint attribs[] = {EGL_SURFACE_TYPE, EGL_WINDOW_BIT, EGL_NONE};
+   EGLint contextAttribs[] = {EGL_NONE};	
+#endif
+
+#ifdef linux
+	dpy = XOpenDisplay(display);
+	wnd = XCreateSimpleWindow(dpy, DefaultRootWindow(dpy), 0, 0, 1, 1,
+								0, 0, 0);
+#endif
+   eDpy = eglGetDisplay((NativeDisplayType)dpy);
+   if(eDpy == NULL) return GL_TRUE;
+   if(!eglInitialize(eDpy, NULL, NULL)) return GL_TRUE;
+   if(!eglChooseConfig(eDpy, attribs, cfg, 1, &noCfg)) return GL_TRUE;
+   eCtx = eglCreateContext(eDpy, cfg[0], EGL_NO_CONTEXT, contextAttribs);
+   if(eCtx == NULL) return GL_TRUE;
+   eSurf = eglCreateWindowSurface(eDpy, cfg[0], (EGLNativeWindowType)wnd, NULL);
+   if(eSurf == NULL) return GL_TRUE;
+   if(!eglMakeCurrent(eDpy, eSurf, eSurf, eCtx)) return GL_TRUE;
+   return GL_FALSE;
+}
+
+void glewDestroyContext ()
+{
+   eglMakeCurrent(eDpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+   if (!eDpy && !eSurf) eglDestroySurface(eDpy, eSurf);
+   if (!eDpy && !eCtx) eglDestroyContext(eDpy, eCtx);
+   if (!eDpy) eglTerminate(eDpy);
+#ifdef linux
+	if(NULL != dpy && 0 != wnd) XDestroyWindow(dpy, wnd);
+    if(NULL != dpy) XCloseDisplay(dpy);
+#endif
+}
+
+#elif defined(_WIN32)
 
 HWND wnd = NULL;
 HDC dc = NULL;

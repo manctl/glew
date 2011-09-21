@@ -2,7 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <GL/glew.h>
-#if defined(_WIN32)
+#if defined(GLEW_USE_LIB_ES)
+# if defined(GLEW_INC_EGL)
+#include <GL/eglew.h>
+#else
+#include <EGL/egl.h>
+#endif
+#elif defined(_WIN32)
 #include <GL/wglew.h>
 #elif !defined(__APPLE__) || defined(GLEW_APPLE_GLX)
 #include <GL/glxew.h>
@@ -13,7 +19,12 @@ static FILE* f;
 #ifdef GLEW_MX
 GLEWContext _glewctx;
 #define glewGetContext() (&_glewctx)
-#ifdef _WIN32
+#if defined(GLEW_USE_LIB_ES)
+#if defined(GLEW_INC_EGL)
+EGLEWContext _eglewctx;
+#define eglewGetContext() (&_eglewctx)
+#endif
+#elif defined _WIN32
 WGLEWContext _wglewctx;
 #define wglewGetContext() (&_wglewctx)
 #elif !defined(__APPLE__) || defined(GLEW_APPLE_GLX)
@@ -22,7 +33,9 @@ GLXEWContext _glxewctx;
 #endif
 #endif
 
-#if defined(_WIN32)
+#if defined(GLEW_USE_LIB_ES)
+GLboolean glewCreateContext (const char* display);
+#elif defined(_WIN32)
 GLboolean glewCreateContext (int* pixelformat);
 #elif !defined(__APPLE__) || defined(GLEW_APPLE_GLX)
 GLboolean glewCreateContext (const char* display, int* visual);
@@ -30,7 +43,7 @@ GLboolean glewCreateContext (const char* display, int* visual);
 GLboolean glewCreateContext ();
 #endif
 
-#if defined(_WIN32) || !defined(__APPLE__) || defined(GLEW_APPLE_GLX)
+#if defined(_WIN32) || !defined(__APPLE__) || defined(GLEW_APPLE_GLX) || defined(GLEW_USE_LIB_ES)
 GLboolean glewParseArgs (int argc, char** argv, char** display, int* visual);
 #endif
 
