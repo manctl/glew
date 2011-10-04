@@ -33,28 +33,6 @@
 #error glesew.h included instead of glew.h
 #endif
 
-#ifndef GLAPI
-#define GLAPI  KHRONOS_APICALL
-#endif
-
-#ifndef GLAPIENTRY
-#define GLAPIENTRY KHRONOS_APIENTRY
-#endif
-
-#ifndef APIENTRY
-#define APIENTRY GLAPIENTRY
-#endif
-
-/* From GL ES 1.1 */
-#ifndef GL_API
-#define GL_API      KHRONOS_APICALL
-#endif
-
-#ifndef GL_APIENTRY
-#define GL_APIENTRY KHRONOS_APIENTRY
-#endif
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif

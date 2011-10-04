@@ -9,9 +9,7 @@
 #  include <GL/glxew.h>
 #endif
 
-/* included for NULL header */
-#include <stddef.h>
-
+/* Invalid build macro combination error checking. can be moved to makefile */
 #if defined(GLEW_ES_ONLY) && !defined(GLEW_USE_LIB_ES)
 #error either GLEW_ES_ONLY(for pure ES) or GLEW_NO_ES(for pure desktop OpenGL) should be present
 #endif

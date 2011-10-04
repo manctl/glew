@@ -315,12 +315,6 @@ typedef enum {
 
 /**********************************************************************************/
 
-#ifdef GLEW_ES_ONLY
-
-#include <GL/glesew.h>
-
-#else
-
 #if defined(_WIN32)
 
 /*
@@ -430,6 +424,39 @@ typedef _W64 int ptrdiff_t;
 #endif
 
 #endif /* _WIN32 */
+
+/* from OpenGL ES */
+#ifndef GLAPI
+#	define GLAPI  KHRONOS_APICALL
+#endif
+
+#ifndef GLAPIENTRY
+#	define GLAPIENTRY KHRONOS_APIENTRY
+#endif
+
+#ifndef APIENTRY
+#	define APIENTRY GLAPIENTRY
+#endif
+
+#ifndef GL_API
+#	define GL_API      GLAPI
+#endif
+
+#ifndef GL_APIENTRY
+#	define GL_APIENTRY GLAPIENTRY
+#endif
+
+/* from glext.h header */
+#ifndef GL_APIENTRYP
+#   define GL_APIENTRYP GL_APIENTRY*
+#endif
+
+/* For OpenGL ES only case the header file glesew.h is included */
+#ifdef GLEW_ES_ONLY
+
+#include <GL/glesew.h>
+
+#else
 
 #ifdef __cplusplus
 extern "C" {
