@@ -6,8 +6,12 @@ const GLubyte* glewGetErrorString (GLenum error)
   {
     (const GLubyte*)"No error",
     (const GLubyte*)"Missing GL version",
-    (const GLubyte*)"GL 1.1 and up are not supported",
-    (const GLubyte*)"GLX 1.2 and up are not supported",
+    (const GLubyte*)"GL 1.1 and up are supported",
+    (const GLubyte*)"GLX 1.2 and up are supported",
+    (const GLubyte*)"OpenGL ES lib expected, found OpenGL lib",
+    (const GLubyte*)"OpenGL lib expected, found OpenGL ES lib",
+    (const GLubyte*)"Missing EGL version",
+    (const GLubyte*)"EGL 1.1 and up are supported",
     (const GLubyte*)"Unknown error"
   };
   const int max_error = sizeof(_glewErrorString)/sizeof(*_glewErrorString) - 1;

@@ -1,9 +1,5 @@
 /* ------------------------------------------------------------------------ */
 
-/* error codes */
-#define GLEW_ERROR_NO_EGL_VERSION 1  /* missing EGL version */
-#define GLEW_ERROR_EGL_VERSION_10_ONLY 2 /* need at least EGL 1.1 */
-
 #ifdef GLEW_MX
 
 typedef struct EGLEWContextStruct EGLEWContext;
