@@ -1,0 +1,27 @@
+NAME = $(GLEW_NAME)
+CC = $(COMPILER_PATH)gcc
+LD = $(COMPILER_PATH)gcc
+PICFLAG = -fPIC
+CFLAGS.EXTRA = -DGLEW_NO_GLU -DGLEW_USE_LIB_ES20 -I$(INC_PATH) -mfpu=vfp -mfloat-abi=softfp
+ifeq ($(BUILD_GLEW_EGL),yes)
+CFLAGS.EXTRA += -DGLEW_INC_EGL
+endif
+LDFLAGS.GL = -lEGL -lGLESv2 -lX11
+LDFLAGS.EXTRA = -L$(LIB_PATH)
+LDFLAGS.STATIC = -Wl,-Bstatic
+LDFLAGS.DYNAMIC = -Wl,-Bdynamic,-rpath,$(ADDITIONAL_LIB_DEPENDENCY_PATH)
+NAME = GLEW
+WARN = -Wall -Wextra -W 
+POPT = -O2
+BIN.SUFFIX =
+LIB.SONAME = lib$(NAME).so.$(SO_MAJOR)
+LIB.DEVLNK = lib$(NAME).so
+LIB.SHARED = lib$(NAME).so.$(SO_VERSION)
+LIB.STATIC = lib$(NAME).a
+LDFLAGS.SO = -shared -Wl,-soname=$(LIB.SONAME)
+LIB.SONAME.MX = lib$(NAME)mx.so.$(SO_MAJOR)
+LIB.DEVLNK.MX = lib$(NAME)mx.so
+LIB.SHARED.MX = lib$(NAME)mx.so.$(SO_VERSION)
+LIB.STATIC.MX = lib$(NAME)mx.a
+LDFLAGS.SO.MX = -shared -Wl,-soname=$(LIB.SONAME.MX)
+SHARED_OBJ_EXT = pic_o

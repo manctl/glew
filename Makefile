@@ -34,10 +34,18 @@ SHELL = /bin/sh
 SYSTEM ?= $(shell config/config.guess | cut -d - -f 3 | sed -e 's/[0-9\.]//g;')
 SYSTEM.SUPPORTED = $(shell test -f config/Makefile.$(SYSTEM) && echo 1)
 
+ifeq ($(BUILD_GLEW_ES20),yes)
+include config/Makefile.arm-linux
+else
 ifeq ($(SYSTEM.SUPPORTED), 1)
 include config/Makefile.$(SYSTEM)
 else
 $(error "Platform '$(SYSTEM)' not supported")
+endif
+endif
+
+ifeq ($(BUILD_NO_ES),yes)
+CFLAGS.EXTRA += -DGLEW_NO_ES
 endif
 
 GLEW_DEST ?= /usr
